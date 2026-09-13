@@ -10,5 +10,21 @@ type Campaign struct {
 	ID        string
 	Name      string
 	CreatedOn time.Time
+	Content   string
 	Contacts  []Contact
+}
+
+func NewCampaign(name string, content string, emails []Contact) *Campaign {
+
+	contacts := make([]Contact, len(emails))
+	for index, email := range emails {
+		contacts[index].Email = email.Email
+	}
+	return &Campaign{
+		ID:        "",
+		Name:      name,
+		CreatedOn: time.Now(),
+		Content:   content,
+		Contacts:  contacts,
+	}
 }
