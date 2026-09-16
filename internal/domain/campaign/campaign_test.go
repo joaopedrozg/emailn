@@ -1,21 +1,65 @@
 package campaign
 
-import "testing"
+import (
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+)
+
+var (
+	name     = "Test Campaign"
+	content  = "Test Content"
+	contacts = []string{"test@example.com", "another@example.com"}
+)
 
 func TestNewCampaign(t *testing.T) {
-	name := "Test Campaign"
-	content := "Test Content"
-	contacts := []string{"test@example.com", "another@example.com"}
+	assert := assert.New(t)
 
-	campaign := NewCampaign(name, content, contacts)
+	campaign, _ := NewCampaign(name, content, contacts)
 
-	if campaign.ID != "" {
-		t.Errorf("Expected campaign ID to be empty, got %s", campaign.ID)
-	} else if campaign.Name != name {
-		t.Errorf("Expected campaign Name to be %s, got %s", name, campaign.Name)
-	} else if campaign.Content != content {
-		t.Errorf("Expected campaign Content to be %s, got %s", content, campaign.Content)
-	} else if len(campaign.Contacts) != len(contacts) {
-		t.Errorf("Expected campaign Contacts length to be %d, got %d", len(contacts), len(campaign.Contacts))
-	}
+	assert.Equal(campaign.Name, name)
+	assert.Equal(campaign.Content, content)
+	assert.Equal(len(campaign.Contacts), len(contacts))
+}
+
+func Test_NewCampaign_IDIsntNil(t *testing.T) {
+	assert := assert.New(t)
+
+	campaign, _ := NewCampaign(name, content, contacts)
+
+	assert.NotNil(campaign.ID)
+}
+
+func Test_NewCampaign_CreatedOnMustBeRecent(t *testing.T) {
+	assert := assert.New(t)
+	now := time.Now().Add(-time.Minute)
+
+	campaign, _ := NewCampaign(name, content, contacts)
+
+	assert.Greater(campaign.CreatedOn, now)
+}
+
+func Test_NewCampaign_MustValidateName(t *testing.T) {
+	assert := assert.New(t)
+
+	_, err := NewCampaign("", content, contacts)
+
+	assert.NotNil(err)
+}
+
+func Test_NewCampaign_MustValidateContent(t *testing.T) {
+	assert := assert.New(t)
+
+	_, err := NewCampaign(name, "", contacts)
+
+	assert.NotNil(err)
+}
+
+func Test_NewCampaign_MustValidateContacts(t *testing.T) {
+	assert := assert.New(t)
+
+	_, err := NewCampaign(name, content, []string{})
+
+	assert.NotNil(err)
 }
